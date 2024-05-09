@@ -185,59 +185,82 @@ int main(int argc, char** argv){
 				
 				//cout << "j: " << j << endl;						//FOR DEBUG
 				if(match.nodes.get(j)->isleaf){			//this is a loop that choses the leaf nodes and makes the next attack moves and updates the leaves.
-					match.nodes.get(j)->isleaf=false;	//since there will be new child nodes this node will no longer be a leaf
+					match.nodes.get(j)->isleaf=false;	//since there are new child nodes this node will no longer be a leaf
 					
 					if (match.nodes.get(j)->status=='p'){
-						//if it is pikachus turn perform pikachus attacks
+						//if it is pikachus turn perform each of pikachus attacks
 						for (int p = 0; p < pikachu->attacks.elemcount; p++){
 							if (pikachu->attacks.get(p)->get_accuracy() != 100){
+								//creating new pokemons with calculated pp and hp values
 								pokemon* hit_blastoise = new pokemon("blastoise", match.nodes.get(j)->blastoise->pp,match.nodes.get(j)->blastoise->hp-pikachu->attacks.get(p)->get_damage());
 								pokemon* dodged_blastoise = new pokemon("blastoise", match.nodes.get(j)->blastoise->pp,match.nodes.get(j)->blastoise->hp);
 								pokemon* newPikachu = new pokemon("pikachu", match.nodes.get(j)->pikachu->pp - pikachu->attacks.get(p)->get_pp(), match.nodes.get(j)->pikachu->hp);
-								node* newNode_success = new node("efficient", pikachu->attacks.get(p)->get_name(), node_count++, newPikachu, hit_blastoise,'b', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*pikachu->attacks.get(p)->get_accuracy()/100/4);
-								node* newNode_fail = new node("nonefficent", pikachu->attacks.get(p)->get_name(), node_count++,newPikachu, dodged_blastoise,'b', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*(100-pikachu->attacks.get(p)->get_accuracy())/100/4);
-								match.addNode(newNode_success);
-								match.addNode(newNode_fail);
-								match.nodes.get(j)->child.addBack(newNode_success);
-								match.nodes.get(j)->child.addBack(newNode_fail);
 								
+								if(newPikachu->pp >= 0){	//if pp has fallen below zero the move is not permissable so do not create the node 
+									//creating the new node for each attack and adding to the nodes
+									node* newNode_success = new node("efficient", pikachu->attacks.get(p)->get_name(), node_count++, newPikachu, hit_blastoise,'b', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*pikachu->attacks.get(p)->get_accuracy()/100/4);
+									node* newNode_fail = new node("nonefficent", pikachu->attacks.get(p)->get_name(), node_count++,newPikachu, dodged_blastoise,'b', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*(100-pikachu->attacks.get(p)->get_accuracy())/100/4);
+									
+									match.addNode(newNode_success);
+									match.addNode(newNode_fail);
+									match.nodes.get(j)->child.addBack(newNode_success);
+									match.nodes.get(j)->child.addBack(newNode_fail);
+								}
 							}else {
+								//creating new pokemons with calculated pp and hp values
 								pokemon* hit_blastoise = new pokemon("blastoise", match.nodes.get(j)->blastoise->pp,match.nodes.get(j)->blastoise->hp-pikachu->attacks.get(p)->get_damage());
 								pokemon* newPikachu = new pokemon("pikachu", match.nodes.get(j)->pikachu->pp - pikachu->attacks.get(p)->get_pp(), match.nodes.get(j)->pikachu->hp);
-								node* newNode = new node("efficient", pikachu->attacks.get(p)->get_name(), node_count++, newPikachu, hit_blastoise,'b', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*pikachu->attacks.get(p)->get_accuracy()/100/4);
-								match.addNode(newNode);
-								match.nodes.get(j)->child.addBack(newNode);
+								
+								if(newPikachu->pp >= 0){	//if pp has fallen below zero the move is not permissable so do not create the node 
+									//creating the new node for each attack and adding to the nodes
+									node* newNode = new node("efficient", pikachu->attacks.get(p)->get_name(), node_count++, newPikachu, hit_blastoise,'b', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*pikachu->attacks.get(p)->get_accuracy()/100/4);
+									
+									match.addNode(newNode);
+									match.nodes.get(j)->child.addBack(newNode);
+								}
 							}
 						}
 
 					}else if (match.nodes.get(j)->status=='b'){
-						//if it is blastoits turn perform blastoits attacks
+						//if it is blastoits turn perform each of blastoits attacks
 						for (int b = 0; b < blastoise->attacks.elemcount; b++){
 							if (blastoise->attacks.get(b)->get_accuracy() != 100){
+								//creating new pokemons with calculated pp and hp values
 								pokemon* hit_pikachu = new pokemon("pikachu", match.nodes.get(j)->pikachu->pp,match.nodes.get(j)->pikachu->hp-blastoise->attacks.get(b)->get_damage());
 								pokemon* dogded_pikachu = new pokemon("pikachu", match.nodes.get(j)->pikachu->pp,match.nodes.get(j)->pikachu->hp);
 								pokemon* newBlastoise = new pokemon("blastoise", match.nodes.get(j)->blastoise->pp - blastoise->attacks.get(b)->get_pp(), match.nodes.get(j)->blastoise->hp);
-								node* newNode_success = new node("efficient", blastoise->attacks.get(b)->get_name(), node_count++, hit_pikachu, newBlastoise,'p', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*blastoise->attacks.get(b)->get_accuracy()/100/4);
-								node* newNode_fail = new node("nonefficient", blastoise->attacks.get(b)->get_name(), node_count++, dogded_pikachu, newBlastoise,'p', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*(100-blastoise->attacks.get(b)->get_accuracy())/100/4);
-								match.addNode(newNode_success);
-								match.addNode(newNode_fail);
-								match.nodes.get(j)->child.addBack(newNode_success);
-								match.nodes.get(j)->child.addBack(newNode_fail);
+								
+								if(newBlastoise->pp >= 0){	//if pp has fallen below zero the move is not permissable so do not create the node 
+									//creating the new node for each attack and adding to the nodes
+									node* newNode_success = new node("efficient", blastoise->attacks.get(b)->get_name(), node_count++, hit_pikachu, newBlastoise,'p', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*blastoise->attacks.get(b)->get_accuracy()/100/4);
+									node* newNode_fail = new node("nonefficient", blastoise->attacks.get(b)->get_name(), node_count++, dogded_pikachu, newBlastoise,'p', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*(100-blastoise->attacks.get(b)->get_accuracy())/100/4);
+									
+									match.addNode(newNode_success);
+									match.addNode(newNode_fail);
+									match.nodes.get(j)->child.addBack(newNode_success);
+									match.nodes.get(j)->child.addBack(newNode_fail);
+								}
 							}else {
+								//creating new pokemons with calculated pp and hp values
 								pokemon* hit_pikachu = new pokemon("pikachu", match.nodes.get(j)->pikachu->pp,match.nodes.get(j)->pikachu->hp-blastoise->attacks.get(b)->get_damage());
 								pokemon* newBlastoise = new pokemon("blastoise", match.nodes.get(j)->blastoise->pp - blastoise->attacks.get(b)->get_pp(), match.nodes.get(j)->blastoise->hp);
-								node* newNode = new node("efficient", blastoise->attacks.get(b)->get_name(), node_count++, hit_pikachu, newBlastoise,'p', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*blastoise->attacks.get(b)->get_accuracy()/100/4);
-								match.addNode(newNode);								
-								match.nodes.get(j)->child.addBack(newNode);
+								
+								if(newBlastoise->pp >= 0){	//if pp has fallen below zero the move is not permissable so do not create the node 
+									//creating the new node for each attack and adding to the nodes
+									node* newNode = new node("efficient", blastoise->attacks.get(b)->get_name(), node_count++, hit_pikachu, newBlastoise,'p', match.nodes.get(j)->level+1, true, match.nodes.get(j)->prob*blastoise->attacks.get(b)->get_accuracy()/100/4);
+									match.addNode(newNode);								
+									match.nodes.get(j)->child.addBack(newNode);
+								}
 							}
 						}
 
 
 					}
 
-				}else {cout << "leaf olmayan bir nodu geçtim." << endl;}
+				}//else {cout << "leaf olmayan bir nodu geçtim." << endl;} //FOR DEBUG
 			}
 
+			//final print function that prints out the nodes according to the template given in the hw2 pdf file 
 			for(int d = 0; d < match.nodes.elemcount; d++){
 				if (match.nodes.get(d)->level == atoi(which)){
 					cout << "P_HP:"<< match.nodes.get(d)->pikachu->hp<< " P_PP:" << match.nodes.get(d)->pikachu->pp << " B_HP:" << match.nodes.get(d)->blastoise->hp << " B_PP:" << match.nodes.get(d)->blastoise->pp << " PROB:"<<match.nodes.get(d)->prob << endl;
