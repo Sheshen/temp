@@ -2,6 +2,46 @@
 
 from visualize import plot_point_sets
 import numpy as np
+import sys
+
+#function that performs the power method to find the largest eigenvalue and its corresponding eigenvector
+def power_method(A, num_iterations=1000, tol=1e-6):
+    n = A.shape[0]
+    
+    # Initialize a random vector
+    x = np.random.rand(n)
+    
+    # Power iteration
+    for _ in range(num_iterations):
+        x_new = np.dot(A, x)
+        eigenvalue = np.linalg.norm(x_new)
+        x_new = x_new / eigenvalue
+        if np.linalg.norm(x - x_new) < tol:
+            break
+        x = x_new
+    
+    # Calculate eigenvector corresponding to the dominant eigenvalue
+    eigenvector = x_new
+    
+    return eigenvalue, eigenvector
+
+
+#function that calculates the eigenvalues using the powermethod function
+def eigen(A):
+    n = A.shape[0]
+    
+    eigenvalues = []
+    eigenvectors = []
+    
+    for _ in range(n):
+        eigenvalue, eigenvector = power_method(A)
+        eigenvalues.append(eigenvalue)
+        eigenvectors.append(eigenvector)
+        
+        # Deflate matrix
+        A = A - eigenvalue * np.outer(eigenvector, eigenvector)
+    
+    return eigenvalues, eigenvectors
 
 def my_svd(M):
     
@@ -9,7 +49,9 @@ def my_svd(M):
     MtM = np.dot(M.T, M)
     
     # Eigen decomposition of M^T * M
-    eigenvalues, eigenvectors = np.linalg.eig(MtM)
+    eigenvalues, eigenvectors = eigen(MtM)
+    
+    
     
     # Sort eigenvalues and eigenvectors in descending order
     sorted_indices = np.argsort(eigenvalues)[::-1]
@@ -59,4 +101,21 @@ def kabsch_umeyama(Q, P):
     U = np.dot(Wt.T, np.dot(S_tilde, Wt))
 
     return U
+
+
+
+if __name__ == "__main__":
+    
+    # Check if the correct number of arguments is provided
+    if len(sys.argv) != 4:
+        print("Usage: python main.py <mat1.txt> <mat2.txt> <correspondences.txt>")
+
+    mat1_filename = sys.argv[1]
+    mat2_filename = sys.argv[2]
+    correspondences_filename = sys.argv[3]
+
+    print("Matrix 1 file:", mat1_filename)
+    print("Matrix 2 file:", mat2_filename)
+    print("Correspondences file:", correspondences_filename)
+
 
