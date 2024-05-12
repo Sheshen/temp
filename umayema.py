@@ -25,7 +25,6 @@ def power_method(A, num_iterations=1000, tol=1e-6):
     
     return eigenvalue, eigenvector
 
-
 #function that calculates the eigenvalues using the powermethod function
 def eigen(A):
     n = A.shape[0]
@@ -43,6 +42,7 @@ def eigen(A):
     
     return eigenvalues, eigenvectors
 
+#Singular Value Decomposition function, M = V S Wt
 def my_svd(M):
     
     # Compute M^T * M
@@ -72,7 +72,7 @@ def my_svd(M):
     
     return V, S, W.T
 
-
+#main function that performs the kabshc umayema alogrithm based on the pseudo code from the essay of Lawrance et. al
 def kabsch_umeyama(Q, P):
     # Q and P are sets of points to be aligned
 
@@ -105,17 +105,27 @@ def kabsch_umeyama(Q, P):
 
 
 if __name__ == "__main__":
-    
-    # Check if the correct number of arguments is provided
     if len(sys.argv) != 4:
         print("Usage: python main.py <mat1.txt> <mat2.txt> <correspondences.txt>")
+        sys.exit(1)
 
     mat1_filename = sys.argv[1]
     mat2_filename = sys.argv[2]
     correspondences_filename = sys.argv[3]
 
-    print("Matrix 1 file:", mat1_filename)
-    print("Matrix 2 file:", mat2_filename)
-    print("Correspondences file:", correspondences_filename)
+    mat1 = np.loadtxt(mat1_filename)
+    mat2 = np.loadtxt(mat2_filename)
+    correspondences = np.loadtxt(correspondences_filename)
 
+    if mat1.shape[0] != correspondences.shape[0] or mat2.shape[0] != correspondences.shape[0]:
+        print("Number of correspondences doesn't match the number of points.")
+        sys.exit(1)
+
+    Q = mat1[correspondences[:, 0]]
+    P = mat2[correspondences[:, 1]]
+
+    print("Q matrix (from mat1.txt using correspondences):")
+    print(Q)
+    print("P matrix (from mat2.txt using correspondences):")
+    print(P)
 
